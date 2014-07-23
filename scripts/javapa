@@ -1,0 +1,70 @@
+#!/bin/bash
+# chkconfig: 345 91 19
+# description: JAVA PA Service
+# processname: java
+
+PORT=$2
+JAVAPA_HOME="/vagrant/scarecrow/target"
+TARGET_FILES=($JAVAPA_HOME/scarecrow-*-SNAPSHOT.jar)
+JAVAPA_BINARY=$TARGET_FILES
+echo "Starting JavaPA using $JAVAPA_BINARY"
+JAVAPA_CONFIG_FILE="$JAVAPA_HOME/../config/server_config_local.yaml"
+JAVAPA_APP_CONFIG_FILE="scarebox.properties"
+JAVAPA_HCAST_CONFIG_FILE="$JAVAPA_HOME/config/hazelcast_localn_80$PORT.xml"
+OUTFILE="/var/log/nanigans/scarecrow_80$PORT.log"
+PIDFILE="/var/run/javapa/scarecrow_80$PORT.pid"
+
+RUNAS="vagrant"
+SUBIT="su $RUNAS -c "
+SERVERNAME="Nanigans Java PA Server"
+HOST_NAME=$(hostname -s)
+JVM_OPTS="-Dapplication.property.file.name=$JAVAPA_APP_CONFIG_FILE \
+-Dhazelcast.config=$JAVAPA_HCAST_CONFIG_FILE -Ddw.http.port=80$PORT \
+-Ddw.http.adminPort=70$PORT -Xms2g -Xmx2g -Xss512k -XX:+UseParNewGC \
+-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 \
+-XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=65 \
+-XX:+UseCMSInitiatingOccupancyOnly -XX:+UseCompressedOops \
+-XX:+UseTLAB -XX:StringTableSize=10000019"
+JMX_SETTINGS="-Dcom.sun.management.jmxremote.port=90$PORT \
+            -Dcom.sun.management.jmxremote \
+            -Dcom.sun.management.jmxremote.authenticate=false \
+            -Dcom.sun.management.jmxremote.ssl=false"
+
+case "$1" in
+    start)
+        if [ -f $PIDFILE ]
+        then
+                echo "$PIDFILE exists, $SERVERNAME is already running or crashed"
+        else
+                echo "Starting $SERVERNAME ..."
+                $SUBIT "/usr/bin/java -server $JVM_OPTS $JMX_SETTINGS -jar $JAVAPA_BINARY server $JAVAPA_CONFIG_FILE >> $OUTFILE 2>&1 &"
+                PID=`ps -ef |grep scarecrow |grep /usr/bin/java |grep 80$PORT |grep -v grep |awk '{print $2}'`
+                echo $PID > $PIDFILE
+        fi
+        ;;
+    stop)
+        if [ ! -f $PIDFILE ]
+        then
+                echo "$PIDFILE does not exist, $SERVERNAME is not running"
+        else
+                PID=$(cat $PIDFILE)
+                echo "Stopping $SERVERNAME ..."
+                $SUBIT "kill -15 $PID >> $OUTFILE 2>&1"
+                while [ -x /proc/${PID} ]
+                do
+                    echo "Waiting for $SERVERNAME to shutdown ..."
+                    sleep 1
+                done
+                rm -rf $PIDFILE
+                echo "$SERVERNAME stopped"
+        fi
+        ;;
+    restart)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+    *)
+        echo "Valid arguments are start|stop|restart"
+        ;;
+esac
