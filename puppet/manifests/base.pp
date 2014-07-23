@@ -1,7 +1,7 @@
 #
 # base.pp
 # Build Vagrant box configuration from modules
-# 
+#
 # vagrant-javadev-box
 # https://github.com/rob-murray/vagrant-javadev-box
 #
@@ -13,27 +13,17 @@ class { 'java':
   version      => 'latest',
 }
 
-# Postgresql general config
-class { 'postgresql':
-  version => '9.2',
-  manage_package_repo => true,
-  charset => 'UTF8',
-  locale  => 'en_US.UTF-8'
+# create a simple hostname and ip host entry
+host { 'tinbox.nanigans.com':
+  ip => '192.168.56.102',
+  host_aliases => 'tinbox',
 }
 
-# Postgresql server config
-class { 'postgresql::server':
-  config_hash => {
-    'ip_mask_deny_postgres_user' => '0.0.0.0/32',
-    'ip_mask_allow_all_users'    => '0.0.0.0/0',
-    'listen_addresses'           => '*',
-    'manage_redhat_firewall'     => true,
-    'postgres_password'          => 'letmein',
-  },
+# create a simple hostname and ip host entry
+host { 'adbox.nanigans.com':
+  ip => '192.168.56.101',
+  host_aliases => 'adbox',
 }
-
-# Postgresql database config
-# no op
 
 # Install Maven to the vagrant users home dir and shell
 maven::setup { "maven":
