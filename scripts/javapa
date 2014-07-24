@@ -37,6 +37,8 @@ case "$1" in
                 echo "$PIDFILE exists, $SERVERNAME is already running or crashed"
         else
                 echo "Starting $SERVERNAME ..."
+                # make the /var/run/javapa directory if it doesn't exist - it is deleted on boot
+                mkdir -p /var/run/javapa
                 $SUBIT "/usr/bin/java -server $JVM_OPTS $JMX_SETTINGS -jar $JAVAPA_BINARY server $JAVAPA_CONFIG_FILE >> $OUTFILE 2>&1 &"
                 PID=`ps -ef |grep scarecrow |grep /usr/bin/java |grep 80$PORT |grep -v grep |awk '{print $2}'`
                 echo $PID > $PIDFILE
