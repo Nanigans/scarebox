@@ -1,0 +1,3 @@
+svn up /vagrant/scarecrow
+mvn package -f /vagrant/scarecrow/pom.xml -DskipTests
+sudo /vagrant/scripts/javapa restart 80
