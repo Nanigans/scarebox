@@ -29,10 +29,10 @@ host { 'adbox.nanigans.com':
 
 # SCAREBOX doesn't need Maven right now.  If you need it, uncomment this.
 
-#maven::setup { "maven":
-#  ensure        => 'present',
-#  source        => 'apache-maven-3.1.1-bin.tar.gz',
-#  deploymentdir => '/home/vagrant/apache-maven',
-#  user          => 'vagrant',
-#  pathfile      => '/home/vagrant/.bashrc'
-#}
+package {
+  'maven2':
+  ensure => 'installed',
+}
+
+
+include svn

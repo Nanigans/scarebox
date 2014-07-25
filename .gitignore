@@ -4,5 +4,7 @@
 .bashrc
 
 *.gz
+settings.yml
+.idea/*
 
 puppet/modules/maven/files/

@@ -1,6 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-
+require 'yaml'
 
 #
 # Vagrant configuration for vagrant-jdev-box
@@ -33,7 +33,7 @@ Vagrant.configure("2") do |config|
 
     # Share the working dir - host, guest
     scarebox.vm.synced_folder "scripts", "/vagrant/scripts"
-    scarebox.vm.synced_folder "../../src/scarecrow", "/vagrant/scarecrow"
+    scarebox.vm.synced_folder settings['src_folder'], "/vagrant/scarecrow"
 
     scarebox.vm.provision "shell", inline: "apt-get update --fix-missing"
 
