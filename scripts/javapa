@@ -62,9 +62,9 @@ case "$1" in
         fi
         ;;
     restart)
-        $0 stop
+        $0 stop $PORT
         sleep 1
-        $0 start
+        $0 start $PORT
         ;;
     *)
         echo "Valid arguments are start|stop|restart"
