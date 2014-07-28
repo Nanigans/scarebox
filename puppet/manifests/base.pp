@@ -40,7 +40,7 @@ file { [ "/vagrant/puppet/modules/maven/files" ]:
 # Install Maven to the vagrant users home dir and shell
 # if we just apt-get maven then it installs all kinds of dependencies and screws with java version.
 # So BLERG we wget the tar
-wget::fetch { "download Maven tar":
+wget::fetch { "download-maven-tar":
   source      => "http://mirror.reverse.net/pub/apache/maven/maven-3/3.2.2/binaries/apache-maven-3.2.2-bin.tar.gz",
   destination => "/vagrant/puppet/modules/maven/files/apache-maven-3.2.2-bin.tar.gz"
 }
@@ -52,5 +52,6 @@ maven::setup { "maven":
   source        => 'apache-maven-3.2.2-bin.tar.gz',
   deploymentdir => '/home/vagrant/apache-maven',
   user          => 'vagrant',
-  pathfile      => '/home/vagrant/.bashrc'
+  pathfile      => '/home/vagrant/.bashrc',
+  require => Wget::Fetch['download-maven-tar']
 }
