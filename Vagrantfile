@@ -28,6 +28,9 @@ Vagrant.configure("2") do |config|
     scarebox.vm.network "private_network", ip: "192.168.56.103"
     scarebox.vm.hostname = settings['hostname']
 
+    # Set timezone
+    scarebox.vm.provision :shell, :inline => "echo \"Etc/UTC\" | sudo tee /etc/timezone && sudo dpkg-reconfigure --frontend noninteractive tzdata"
+
     # Forward ports
     scarebox.vm.network :forwarded_port, guest: 8080,    host: 8080    # Java app server; jetty
 
